@@ -19,6 +19,7 @@
 #define DTQueryComponentsMinVersion NSFoundationVersionNumber_iOS_7_1
 #define DTNoQueryItemsMinimum (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
 @import UIKit.UIApplication;
+@import SafariServices;
 
 #endif
 
@@ -26,13 +27,19 @@
 #import "CMDQueryStringReader.h"
 #endif
 
+#if defined(__IPHONE_9_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_9_0
+@interface DTGoogleAuth () <SFSafariViewControllerDelegate>
+#else
 @interface DTGoogleAuth ()
+#endif
 
 @property (nonatomic, strong) NSString *redirectURI;
 @property (nonatomic, strong) NSString *secretIdentifier;
 @property (nonatomic, strong) NSString *clientIdentifier;
 @property (nonatomic, strong) DTGoogleAuthHandler handler;
-
+#if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
+@property (nonatomic, weak) UIViewController *safariVC;
+#endif
 @end
 
 @implementation DTGoogleAuth
@@ -112,7 +119,11 @@ __weak static NSURLSession *_session;
     
     NSString *code = queryComponents[@"code"];
     DTGoogleAuthHandler handler = auth.handler;
-    auth.handler = nil;
+    auth.handler = nil;    
+#if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
+    [auth.safariVC dismissViewControllerAnimated:YES completion:NULL];
+#endif
+    
     if (code) {
         auth->_code = code;
         NSString *secret = auth.secretIdentifier;
@@ -148,7 +159,18 @@ __weak static NSURLSession *_session;
     [self authenticateWithScopes:scopes clientIdentifier:identifier secretIdentifier:nil completion:handler];
 }
 
+#if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
++ (void)authenticateWithScopes:(NSArray *)scopes clientIdentifier:(NSString *)identifier secretIdentifier:(NSString *)secretIdentifier completion:(DTGoogleAuthHandler)handler
+{
+    [self authenticateWithScopes:scopes clientIdentifier:identifier secretIdentifier:secretIdentifier fromViewController:nil completion:handler];
+}
+#endif
+
+#if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
++ (void)authenticateWithScopes:(NSArray *)scopes clientIdentifier:(NSString *)clientIdentifier secretIdentifier:(NSString *)secretIdentifier fromViewController:(UIViewController *)controller completion:(DTGoogleAuthHandler)handler
+#elif
 + (void)authenticateWithScopes:(NSArray *)scopes clientIdentifier:(NSString *)clientIdentifier secretIdentifier:(NSString *)secretIdentifier completion:(DTGoogleAuthHandler)handler
+#endif
 {
     NSParameterAssert(scopes.count > 0);
     NSParameterAssert(clientIdentifier);
@@ -172,7 +194,24 @@ __weak static NSURLSession *_session;
 #if defined(__MAC_OS_X_VERSION_MIN_REQUIRED)
     [[NSWorkspace sharedWorkspace] openURL:generatedURL];
 #elif defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
-    [[UIApplication sharedApplication] openURL:[generatedURL absoluteURL]];
+    generatedURL = [generatedURL absoluteURL];
+#if defined(__IPHONE_9_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_9_0
+    if (controller && [SFSafariViewController class]) {
+        while (controller.presentedViewController) {
+            controller = controller.presentedViewController;
+        }
+        
+        SFSafariViewController *webController = [[SFSafariViewController alloc] initWithURL:generatedURL];
+        webController.delegate = auth;
+        auth.safariVC = webController;
+        [controller presentViewController:webController animated:YES completion:NULL];
+    } else
+#else
+    if (true)
+#endif
+    {
+        [[UIApplication sharedApplication] openURL:generatedURL];
+    }
 #endif
 }
 

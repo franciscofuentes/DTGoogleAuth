@@ -8,6 +8,9 @@
 
 @import Foundation;
 @import Accounts;
+#if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
+@import UIKit;
+#endif
 
 @class DTGoogleAuth;
 typedef void(^DTGoogleAuthHandler)(DTGoogleAuth *auth, NSError *error);
@@ -21,6 +24,9 @@ typedef ACErrorCode DTGoogleErrorCode;
 #endif
 
 + (void)authenticateWithScopes:(NSArray *)scopes clientIdentifier:(NSString *)identifier completion:(DTGoogleAuthHandler)handler;
+#if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
++ (void)authenticateWithScopes:(NSArray *)scopes clientIdentifier:(NSString *)identifier secretIdentifier:(NSString *)secretIdentifier fromViewController:(UIViewController *)controller completion:(DTGoogleAuthHandler)handler;
+#endif
 + (void)authenticateWithScopes:(NSArray *)scopes clientIdentifier:(NSString *)identifier secretIdentifier:(NSString *)secretIdentifier completion:(DTGoogleAuthHandler)handler;
 
 - (void)oauthTokenWithSecretIdentifier:(NSString *)secretIdentifier completion:(DTGoogleAuthHandler)handler;
