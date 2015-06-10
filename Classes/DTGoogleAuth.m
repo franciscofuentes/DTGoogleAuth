@@ -211,6 +211,7 @@ __weak static NSURLSession *_session;
 #endif
     {
         [[UIApplication sharedApplication] openURL:generatedURL];
+        [[NSNotificationCenter defaultCenter] addObserver:auth selector:@selector(applicationWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
     }
 #endif
 }
@@ -247,5 +248,34 @@ __weak static NSURLSession *_session;
         });
     }] resume];
 }
+
+#pragma mark - SFSafariVC delegate
+    
+#if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
+- (void)applicationWillEnterForeground:(UIApplication *)application
+{
+    DTGoogleAuthHandler handler = self.handler;
+    self.handler = nil;
+    
+    if (handler) {
+        NSError *error = [NSError errorWithDomain:DTGoogleErrorDomain code:ACErrorAccountAuthenticationFailed userInfo:nil];
+        handler(nil, error);
+    }
+}
+
+#if defined(__IPHONE_9_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_9_0
+- (void)safariViewControllerDidFinish:(nonnull UIViewController *)controller
+{
+    DTGoogleAuthHandler handler = self.handler;
+    self.handler = nil;
+    [controller dismissViewControllerAnimated:YES completion:^{
+        if (handler) {
+            NSError *error = [NSError errorWithDomain:DTGoogleErrorDomain code:ACErrorAccountAuthenticationFailed userInfo:nil];
+            handler(nil, error);
+        }
+    }];
+}
+#endif
+#endif
 
 @end
