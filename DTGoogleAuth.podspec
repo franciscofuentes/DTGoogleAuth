@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "DTGoogleAuth"
-  s.version          = "0.1.0"
+  s.version          = "0.2.0"
   s.summary          = "Simple authentication with google credentials"
   s.homepage         = "https://github.com/dtorres/DTGoogleAuth"
   s.license          = 'MIT'
@@ -14,7 +14,8 @@ Pod::Spec.new do |s|
     ss.ios.deployment_target = '8.0'
     ss.osx.deployment_target = '10.10'
     
-    ss.source_files = 'Classes/DTGoogleAuth.{h,m}'
+    ss.osx.source_files = 'Classes/DTGoogleAuth.{h,m}'
+    ss.ios.source_files = 'Classes/*.{h,m}'
     ss.ios.private_header_files = 'Classes/DTSafariViewController.h'
     ss.frameworks = 'Accounts'
     ss.ios.weak_frameworks = 'WebKit', 'SafariServices'
@@ -25,7 +26,8 @@ Pod::Spec.new do |s|
     ss.osx.deployment_target = '10.9'
     ss.dependency 'CMDQueryStringSerialization'
     
-    ss.source_files = 'Classes/DTGoogleAuth.{h,m}'
+    ss.osx.source_files = 'Classes/DTGoogleAuth.{h,m}'
+    ss.ios.source_files = 'Classes/*.{h,m}'
     ss.ios.private_header_files = 'Classes/DTSafariViewController.h'
     ss.frameworks = 'Accounts'
     ss.ios.weak_frameworks = 'WebKit', 'SafariServices'
