@@ -169,7 +169,7 @@ __weak static NSURLSession *_session;
 
 #if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
 + (void)authenticateWithScopes:(NSArray *)scopes clientIdentifier:(NSString *)clientIdentifier secretIdentifier:(NSString *)secretIdentifier fromViewController:(UIViewController *)controller completion:(DTGoogleAuthHandler)handler
-#elif
+#else
 + (void)authenticateWithScopes:(NSArray *)scopes clientIdentifier:(NSString *)clientIdentifier secretIdentifier:(NSString *)secretIdentifier completion:(DTGoogleAuthHandler)handler
 #endif
 {
