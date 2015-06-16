@@ -16,6 +16,7 @@
 
 #elif defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
 
+#import "DTSafariViewController.h"
 #define DTQueryComponentsMinVersion NSFoundationVersionNumber_iOS_7_1
 #define DTNoQueryItemsMinimum (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0)
 @import UIKit.UIApplication;
@@ -27,8 +28,8 @@
 #import "CMDQueryStringReader.h"
 #endif
 
-#if defined(__IPHONE_9_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_9_0
-@interface DTGoogleAuth () <SFSafariViewControllerDelegate>
+#if defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
+@interface DTGoogleAuth () <DTSafariViewControllerDelegate>
 #else
 @interface DTGoogleAuth ()
 #endif
@@ -195,21 +196,19 @@ __weak static NSURLSession *_session;
     [[NSWorkspace sharedWorkspace] openURL:generatedURL];
 #elif defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
     generatedURL = [generatedURL absoluteURL];
-#if defined(__IPHONE_9_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_9_0
-    if (controller && [SFSafariViewController class]) {
+    if (controller) {
         while (controller.presentedViewController) {
             controller = controller.presentedViewController;
         }
         
-        SFSafariViewController *webController = [[SFSafariViewController alloc] initWithURL:generatedURL];
-        webController.delegate = auth;
+        DTSafariViewController *webController = [[DTSafariViewController alloc] initWithURL:generatedURL];
+        webController.delegate = (id)auth;
         auth.safariVC = webController;
+        if ([webController isKindOfClass:[DTSafariViewController class]]) {
+            webController = (id)[[UINavigationController alloc] initWithRootViewController:webController];
+        }
         [controller presentViewController:webController animated:YES completion:NULL];
-    } else
-#else
-    if (true)
-#endif
-    {
+    } else {
         [[UIApplication sharedApplication] openURL:generatedURL];
         [[NSNotificationCenter defaultCenter] addObserver:auth selector:@selector(applicationWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
     }
@@ -263,7 +262,6 @@ __weak static NSURLSession *_session;
     }
 }
 
-#if defined(__IPHONE_9_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_9_0
 - (void)safariViewControllerDidFinish:(nonnull UIViewController *)controller
 {
     DTGoogleAuthHandler handler = self.handler;
@@ -275,7 +273,6 @@ __weak static NSURLSession *_session;
         }
     }];
 }
-#endif
 #endif
 
 @end
