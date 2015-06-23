@@ -112,11 +112,11 @@ __weak static NSURLSession *_session;
     NSString *stateIdentifier = queryComponents[@"state"];
     NSMutableDictionary *activeAuths = [self activeAuthentications];
     DTGoogleAuth *auth = [activeAuths objectForKey:stateIdentifier];
-    [activeAuths removeObjectForKey:stateIdentifier];
     
     if (!auth) {
         return NO;
     }
+    [activeAuths removeObjectForKey:stateIdentifier];
     
     NSString *code = queryComponents[@"code"];
     DTGoogleAuthHandler handler = auth.handler;
