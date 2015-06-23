@@ -92,7 +92,9 @@ __weak static NSURLSession *_session;
     if ([bundleID caseInsensitiveCompare:url.scheme] != NSOrderedSame) {
         return NO;
     }
-    if ([url.pathComponents.lastObject caseInsensitiveCompare:@"DTGoogleAuth"] != NSOrderedSame) {
+    
+    NSArray *pathComponents = url.pathComponents;
+    if (pathComponents.count == 0 || [pathComponents.lastObject caseInsensitiveCompare:@"DTGoogleAuth"] != NSOrderedSame) {
         return NO;
     }
     
