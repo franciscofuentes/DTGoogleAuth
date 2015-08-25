@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "DTGoogleAuth"
-  s.version          = "0.2.0"
+  s.version          = "0.2.1"
   s.summary          = "Simple authentication with google credentials"
   s.homepage         = "https://github.com/dtorres/DTGoogleAuth"
   s.license          = 'MIT'
